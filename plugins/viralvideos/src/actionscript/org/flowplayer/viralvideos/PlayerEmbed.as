@@ -9,7 +9,6 @@
  *    Additional Term, see http://flowplayer.org/license_gpl.html
  */
 package org.flowplayer.viralvideos {
-    import com.adobe.serialization.json.JSON;
 
     import flash.display.Stage;
     import flash.net.URLVariables;
@@ -110,7 +109,7 @@ package org.flowplayer.viralvideos {
 
             if (configObj && String(configObj).indexOf("{") > 0 && ! configObj.hasOwnProperty("url")) {
                 // a regular configuration object
-                _playerConfig = JSON.decode(configObj);
+                _playerConfig = JSON.parse(configObj);
 
             } else {
                 // had an external config file configured using 'url', use the loaded config object
@@ -229,7 +228,7 @@ package org.flowplayer.viralvideos {
             var configStr:String = _embedConfig.configUrl;
             if (! configStr) {
                 var conf:Object = updateConfig(_playerConfig);
-                configStr = escaped ? escape(JSON.encode(conf)) : JSON.encode(conf);
+                configStr = escaped ? escape(JSON.stringify(conf)) : JSON.stringify(conf);
             }
 
             return configStr;

@@ -7,7 +7,7 @@
 		include flowplayer JavaScript file that does  
 		Flash embedding and provides the Flowplayer API.
 	-->
-	<script type="text/javascript" src="../flowplayer-@FLOWPLAYER_JS_VERSION_INFO@.min.js"></script>
+	<script type="text/javascript" src="flowplayer-@FLOWPLAYER_JS_VERSION_INFO@.min.js"></script>
 	
 	<!-- some minimal styling, can be removed -->
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -23,16 +23,49 @@
 	
 		<p>View commented source code to get familiar with Flowplayer installation.</p>
 		
-		<!-- this A tag is where your Flowplayer will be placed. it can be anywhere -->
+		<!-- this A tag is where your Flowplayer will be placed. it can be anywhere
+		//http://pseudo01.hddn.com/vod/demo.flowplayervod/flowplayer-700.flv
+		-->
 		<a  
-			 href="http://pseudo01.hddn.com/vod/demo.flowplayervod/flowplayer-700.flv"
-			 style="display:block;width:520px;height:330px"  
+			 href="#"
+			 style="display:block;width:520px;height:330px"
 			 id="player"> 
 		</a> 
 	
 		<!-- this will install flowplayer inside previous A- tag. -->
 		<script>
-			flowplayer("player", "@PLAYER_SWF@");
+			flowplayer("player", "@PLAYER_SWF@",
+			{
+                          plugins: {
+                          	f4m:{url:"/player/flowplayer.f4m-3.2.9.swf"},
+                            httpstreaming: { url: "/player/flowplayer.httpstreaming-3.2.10.swf" },
+                            "rs-header": {
+                            	url:"/player/flowplayer.rs.header-0.0.1.swf",
+                            	author:"Author",
+                            	title:"Title",
+                            	top: 0,
+                            	left: 0,
+                            	width:'100%',
+                            	height:'100%',
+                            }
+                          },
+                          clip: {
+                                  url: "mp4:dvrtest_1/manifest.f4m?DVR",
+                                  autoPlay: false,
+                                  urlResolvers: ['f4m'],
+                                  provider: 'httpstreaming',
+
+                                  // directory where the manifest and video fragments are stored
+                                  baseUrl: "http://wms-mb.sportbox.ru:1935/live/"
+                              },
+                          debug:true,
+                          log: {
+                          	level:"debug",
+                          	filter:"org.flowplayer.rs.*"
+                          }
+                        }
+
+);
 		</script>
 	
 		

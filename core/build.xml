@@ -11,6 +11,8 @@
     <property name="audio-version-info" value="3.2.10"/>
     <property name="flowplayer-js-version-info" value="3.2.12"/>
     <property name="source-dist-root-folder" value="flowplayer"/>
+    <property name="logging" value="false"/>
+
 
     <property name="version-status-quoted" value="&quot;&#39;${version-status}&#39;&quot;"/>
     <condition property="version-info" value="${version-1}.${version-2}.${version-3}"
@@ -113,7 +115,11 @@
         <iterate-plugins target="deploy" buildfiles="${jsplugins.buildfiles}" basedirectory="../js-plugins" />
     </target>
 
-    <target name="build" description="builds all" depends="dobuild, deploy" />
+    <target name="build" description="builds all" depends="dobuild, deploy" >
+    </target>
+
+    <target name="build-log" description="builds all" depends="dobuild, deploy" >
+    </target>
 
     <target name="build-biz" description="builds all" depends="check-uptodate, build-lib, plugins"
             unless="uptodate.commercial">
@@ -196,6 +202,7 @@
             <exec executable="${mxmlc_bin}" failonerror="true">
                 <arg line="-define=CONFIG::commercialVersion,'@{commercial}'"/>
                 <arg line="-define+=CONFIG::freeVersion,'@{free}'"/>
+                <arg line="-define+=CONFIG::LOGGING,'${logging}'"/>
                 <arg line="-define+=CONFIG::version1,'${version-1}'"/>
                 <arg line="-define+=CONFIG::version2,'${version-2}'"/>
                 <arg line="-define+=CONFIG::version3,'${version-3}'"/>
@@ -563,7 +570,7 @@
 
 	<target name="debug-js">
 		 <get src="http://flowplayer.org/js/tools/tools.flashembed-1.0.4.js" dest="${dist-dir}/flowplayer-debug.js"/>
-		
+
 		<concat destfile="${dist-dir}/flowplayer-debug.js" append="true">
 
 			<fileset dir="${src-js}/flowplayer.js" includes="flowplayer-src.js"/>
