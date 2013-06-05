@@ -5,8 +5,8 @@ package  {
 public class BuiltInConfig {
    // private var rtmp:org.flowplayer.rtmp.RTMPStreamProvider;
 
-//    [Embed(source="../assets/play.png")]
-//    public var PlayButton:Class;
+    [Embed(source="../assets/play.png",compression="true",quality="100")]
+    public var PlayButton:Class;
 //
 //    [Embed(source="../assets/play.png")]
 //    public var Logo:Class;

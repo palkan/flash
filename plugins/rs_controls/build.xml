@@ -1,0 +1,24 @@
+<project name="'modern' controlbar for Flowplayer" default="deploy">
+    <property file="build.generated.properties"/>
+
+	<property file="${user.home}/plugin.properties" />
+	<property file="build.properties" />
+
+    <!-- filename for the plugin swf -->
+    <property name="shortname" value="rs.controls" />
+    <property name="basename" value="flowplayer.${shortname}" />
+    <property name="releasedir" value="flowplayer.controls" />
+
+    <!-- location of the skin swd, anc swc -->
+    <property name="extra-sources" value="../../lib/common/src/actionscript ${jw-dir}" />
+
+
+    <property file="${devkit-dir}/plugin-build.properties" />
+    <import file="${devkit-dir}/plugin-build.xml"/>
+
+    <property name="plugin-binary" value="${basename}.swf" />
+    <property name="plugin-binary-versioned" value="${basename}-${version}.swf" />
+    <property name="plugin-main-class" value="org/flowplayer/rs/controls/Controls.as" />
+
+
+</project>

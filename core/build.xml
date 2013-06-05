@@ -37,19 +37,9 @@
     <property name="lib-dir" value="lib"/>
     <property name="locale" value="en_US"/>
 
-    <condition property="plugin-skin" value="${controls}" else="modern">
-        <isset property="controls"/>
-    </condition>
-    
-    <condition property="has-slowmotion-buttons" value="true" else="false">
-        <equals arg1="${plugin-skin}" arg2="modern"/>
-    </condition>
 
-    <condition property="plugin-libs" value="${controls-dir}/src/flash/${plugin-skin}" else="">
-        <available file="${controls-dir}/build.xml"/>
-    </condition>
 
-    <property name="libs-path" value="${flexlibsdir} ${lib-dir}/thunderbolt ${plugin-libs} ${plugin-swc}"/>
+    <property name="libs-path" value="${flexlibsdir} ${lib-dir}/thunderbolt ${plugin-swc}"/>
     <property name="classes-for-lib"
               value="org.flowplayer.view.Flowplayer org.flowplayer.util.PropertyBinder org.flowplayer.util.Arrange org.flowplayer.util.Assert org.flowplayer.model.PluginEvent org.flowplayer.util.TextUtil org.flowplayer.view.AbstractSprite org.flowplayer.view.AnimationEngine org.flowplayer.controller.NetStreamControllingStreamProvider org.flowplayer.controller.NetStreamClient org.flowplayer.controller.NetConnectionClient org.flowplayer.util.TimeUtil"/>
     <property name="doc-classes"
@@ -210,13 +200,13 @@
                 <arg line="-define+=CONFIG::controlsVersion,${controls-version-info-quoted}"/>
                 <arg line="-define+=CONFIG::audioVersion,${audio-version-info-quoted}"/>
                 <arg line="-define+=CONFIG::skin,'true'"/>
-                <arg line="-define+=CONFIG::hasSlowMotion,'${has-slowmotion-buttons}'"/>
+                <arg line="-define+=CONFIG::hasSlowMotion,'false'"/>
                 <arg line="-define+=CONFIG::debug,'@{debug}'"/>
                 <arg line="-define+=CONFIG::enableByteRange,'false'"/>
                 <arg line="-define+=CONFIG::FLASH_10_1,'${flash.use.10.1}'"/>
                 <arg line="${compiler.defines}"/>
                 <arg line="-keep-as3-metadata=Value,External"/>
-                <arg line="-source-path ${src-as} ${src-as-commercial} ${classpath} ${plugin-libs}"/>
+                <arg line="-source-path ${src-as} ${src-as-commercial} ${classpath}"/>
                 <arg line="-static-link-runtime-shared-libraries=true" />
                 <!--<arg  line="-link-report build/link-report.xml" />-->
                 <arg line="-library-path ${libs-path} ${src-flash} @{license-lib}"/>

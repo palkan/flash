@@ -36,8 +36,8 @@ package org.flowplayer.model {
 			// once screen is availabe, these will be overridden
 			top = "50%";
 			left = "50%";
-			width = "22%";
-			height = "22%";
+			width = 94;
+			height = 94;
 			display = "block";
 			_buffering = true;
 			_rotateSpeed = 50;

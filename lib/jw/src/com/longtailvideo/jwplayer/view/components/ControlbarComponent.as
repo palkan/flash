@@ -202,6 +202,8 @@ package com.longtailvideo.jwplayer.view.components {
 				if (!isNaN(_fadingOut)) {
 					clearTimeout(_fadingOut);
 				}
+
+                Logger.log('start fader');
 				_fadingOut = setTimeout(moveTimeout, 2000);
 			}
 		}
@@ -231,7 +233,8 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Hide above controlbar again when move has timed out. **/
 		private function moveTimeout(evt:Event=null):void {
 			if (!hidden) {
-				
+
+                Logger.log(_hiddenY+' '+y,'hidden y');
 				
 				if (y<_hiddenY) {
 					sendHide();
@@ -251,6 +254,9 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** If the mouse leaves the stage, hide the controlbar if position is 'over' **/
 		private function mouseLeftStage(evt:Event=null):void {
+
+            Logger.log(_player.config.pluginConfig('controlbar'),'config_controlbar');
+
 			if (fadeOnTimeout && !hidden) {
 				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
 					//if (evt) { sendHide(); }
@@ -262,6 +268,9 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		private function stateHandler(evt:PlayerEvent=null):void {
+
+            Logger.log(_player.state,'JW_STATE');
+
 			switch(_player.state) {
 				case PlayerState.BUFFERING:
 				case PlayerState.PLAYING:
@@ -320,11 +329,14 @@ package com.longtailvideo.jwplayer.view.components {
 		
 
 		private function updateControlbarState():void {
+
 			var newLayout:String = _defaultLayout;
 			var controlbarLayout:Object = _player.skin.getSkinProperties().layout['controlbar'];
 			if (controlbarLayout) {
 				newLayout = parseStructuredLayout(controlbarLayout);
 			}
+
+
 			removeInactive(newLayout);
 			newLayout = newLayout.replace("blank", _customButtons.join("|"));
 			newLayout = removeButtonFromLayout("blank", newLayout);
@@ -336,10 +348,10 @@ package com.longtailvideo.jwplayer.view.components {
 				hideButton('play');
 			} else if (player.state == PlayerState.IDLE) {
 				if (_timeSlider) {
-					_timeSlider.reset();
+                 	_timeSlider.reset();
 					_timeSlider.thumbVisible = false;
 					if (_player.playlist.currentItem) {
-						setTime(0, _player.playlist.currentItem.duration);
+    					setTime(0, _player.playlist.currentItem.duration);
 					}
 				}
 				hideButton('pause');
@@ -352,12 +364,20 @@ package com.longtailvideo.jwplayer.view.components {
 				hideButton('prev');
 				hideButton('next');
 			}
-			if (player.config.mute) {
-				newLayout = newLayout.replace("mute", "unmute");
-				hideButton("mute");
-			} else {
-				hideButton("unmute");
-			}
+
+            if(_buttons['mute']){
+
+			    if (player.config.mute) {
+				    newLayout = newLayout.replace("mute", "unmute");
+				    hideButton("mute");
+                    _volSlider.thumbVisible = false;
+                    _volSlider.setProgress(0);
+			    }else{
+				    hideButton("unmute");
+                    _volSlider.thumbVisible = true;
+                    _volSlider.setProgress(player.config.volume);
+			    }
+            }
 			if (player.config.fullscreen) {
 				newLayout = newLayout.replace("fullscreen", "normalscreen");
 				hideButton("fullscreen");
@@ -397,7 +417,9 @@ package com.longtailvideo.jwplayer.view.components {
 						scrubber.thumbVisible = (evt.duration > 0);
 						if (evt.bufferPercent > 0) {
 							var offsetPercent:Number = (evt.offset / evt.duration) * 100;
-							scrubber.setBuffer(evt.bufferPercent / (1-offsetPercent/100), offsetPercent);
+                            var bufferPercent:Number = (evt.bufferPercent / evt.duration) * 100;
+							//scrubber.setBuffer(evt.bufferPercent / (1-offsetPercent/100), offsetPercent);
+                            scrubber.setBuffer(bufferPercent, offsetPercent);
 						}
 						if (evt.position > 0) { setTime(evt.position, evt.duration); }
 					}
@@ -410,10 +432,12 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function updateVolumeSlider(evt:MediaEvent=null):void {
+
+
 			var volume:Slider = _volSlider;
 			if (volume) {
+                Logger.log(_player.config.volume,'volume');
 				var volumeWidth:Number = getSkinElement("volumeSliderRail").width + volume.capsWidth;
-
 				if (!_player.config.mute) {
 					volume.setBuffer(100);
 					volume.setProgress(_player.config.volume);
@@ -437,11 +461,12 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			var elapsedText:TextField = getTextField('elapsed');
 			if (elapsedText){
+                Logger.log(Strings.digits(position),'elapsed');
 				elapsedText.text = Strings.digits(position)+" // "+Strings.digits(duration);
 				var textFormat:TextFormat = new TextFormat();
 				textFormat.color = 0x9a9a9a;
 				textFormat.size = fontSize;
-				elapsedText.setTextFormat(textFormat,5,14);
+				elapsedText.setTextFormat(textFormat,Strings.digits(position).length+1,Strings.digits(position).length+4+Strings.digits(duration).length);
 			}
 			
 			var durationField:TextField = getTextField('duration');
@@ -519,6 +544,7 @@ package com.longtailvideo.jwplayer.view.components {
 			button.setOutIcon(getSkinElement(name + "Button"));
 			button.setOverIcon(getSkinElement(name + "ButtonOver"));
 			button.setBackground(getSkinElement(name + "ButtonBack"));
+
 			button.clickFunction = function():void {
 				forward(new ViewEvent(event, eventData));
 			}
@@ -544,7 +570,7 @@ package com.longtailvideo.jwplayer.view.components {
 				slider.tabEnabled = false;
 				_buttons[name] = slider;
 			} catch (e:Error) {
-				Logger.log("Could not create " + name + "slider");
+				Logger.log("Could not create " + name + "slider; error: "+ e.message);
 			}
 		}
 
@@ -561,7 +587,7 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			
 			
-			
+			Logger.log(textFormat.color, 'color');
 			
 			//if(name!="elapsed")
 			//textFormat2.color = 0x9a9a9a;
@@ -610,13 +636,13 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function seekHandler(evt:ViewEvent):void {
-			var duration:Number = 0;
+			/*var duration:Number = 0;
 			try {
 				duration = player.playlist.currentItem.duration;
 			} catch (err:Error) {
 			}
-			var percent:Number = Math.round(duration * evt.data);
-			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_SEEK, percent));
+			var percent:Number = Math.round(duration * evt.data);*/
+			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_SEEK, 100*evt.data));
 		}
 
 
@@ -731,6 +757,8 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		override public function resize(width:Number, height:Number):void {
+
+
 			if (getConfigParam('position') == "none") {
 				visible = false;
 				return;

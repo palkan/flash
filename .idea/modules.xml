@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/flowplayer-flash.iml" filepath="$PROJECT_DIR$/flowplayer-flash.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/rs_header/rs-header.iml" filepath="$PROJECT_DIR$/plugins/rs_header/rs-header.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugins/rs_controls/src/rs_controls.iml" filepath="$PROJECT_DIR$/plugins/rs_controls/src/rs_controls.iml" />
+    </modules>
+  </component>
+</project>
+
