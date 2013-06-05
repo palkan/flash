@@ -186,10 +186,12 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
             case ClipEventType.PLAY_STATUS:
             case ClipEventType.BUFFER_FULL:
                 _updateTime = true;
+                startTimer();
                 dispatchEvent(new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,state,null));
                 break;
             case ClipEventType.RESUME:
                 _updateTime = true;
+                startTimer();
                 dispatchEvent(new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,state,null));
                 break;
             case ClipEventType.FINISH:
