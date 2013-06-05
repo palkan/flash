@@ -113,13 +113,13 @@ package org.flowplayer.controls {
 
 			// call addWidget in reverse order so we add widgets at the beginning
 			addWidget(new ToggleFullScreenButtonController(), null, false);
-			addWidget(new VolumeController(), null, false);
-			addWidget(new ToggleMuteButtonController(), null, false);
-			addWidget(new TimeViewController(), null, false);
 			addWidget(new ScrubberController(), null, false);
-			addWidget(new NextButtonController(), null, false);
+            addWidget(new TimeViewController(), null, false);
+            addWidget(new VolumeController(), null, false);
+            addWidget(new ToggleMuteButtonController(), null, false);
+            addWidget(new NextButtonController(), null, false);
 			addWidget(new PrevButtonController(), null, false);
-			addWidget(new TogglePlayButtonController(), null, false);
+            addWidget(new TogglePlayButtonController(), null, false);
 			addWidget(new StopButtonController(), null, false);
 
 			// now that we have registered all our controllers, clear config cache
@@ -224,8 +224,8 @@ package org.flowplayer.controls {
             log.debug("arranging, width is " + width);
 
 			_bgFill.graphics.clear();
-			_bgFill.graphics.beginFill(0, 0);
-			_bgFill.graphics.drawRect(0, 0, width, height);
+			_bgFill.graphics.beginFill(0, margins[0]);
+			_bgFill.graphics.drawRect(0, 0, width, height - margins[0]);
 			_bgFill.graphics.endFill();
 
 
@@ -323,9 +323,9 @@ package org.flowplayer.controls {
 			
 		//	log.error("Space after scrubber = "+view.spaceAfterWidget);
 			
-            arrangeX(view, leftEdge);
+            arrangeX(view, 0);//leftEdge);
 
-			var scrubberWidth:Number = rightEdge - leftEdge;
+			var scrubberWidth:Number = width;//rightEdge - leftEdge;
 			
             if (! _player || _immediatePositioning) {
                 view.width = scrubberWidth;
@@ -333,8 +333,8 @@ package org.flowplayer.controls {
 			//	_player.animationEngine.cancel(view);
                 _player.animationEngine.animateProperty(view, "width", scrubberWidth);
             }
-            view.height = height - margins[0] - margins[2];
-            view.y = _height - margins[2] - view.height;
+            view.height = margins[0];//height - margins[0] - margins[2];
+            view.y = 0;//_height - margins[2] - view.height;
             return rightEdge  - scrubberWidth;
         }
 		
@@ -391,7 +391,7 @@ package org.flowplayer.controls {
 
 		private function arrangeYCentered(view:AbstractSprite):void {
 			view.y = margins[0];
-			
+
 			var h:Number = height - margins[0] - margins[2];
 			var w:Number =  h / view.height * view.width;
 			view.setSize(w, h); 
