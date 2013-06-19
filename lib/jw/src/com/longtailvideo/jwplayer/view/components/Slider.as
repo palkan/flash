@@ -1,12 +1,14 @@
 package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.events.ViewEvent;
-	import com.longtailvideo.jwplayer.utils.RootReference;
+import com.longtailvideo.jwplayer.utils.Logger;
+import com.longtailvideo.jwplayer.utils.RootReference;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
-	import flash.geom.Rectangle;
+import flash.geom.Point;
+import flash.geom.Rectangle;
 	
 	
 	public class Slider extends Sprite {
@@ -33,6 +35,8 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _lock:Boolean;
 		/** If the buffer has a percentage offset **/
 		protected var _bufferOffset:Number = 0;
+        /** If thumb is locked then it is always on the right side of a progress bar **/
+        protected var _thumbIsLocked:Boolean = true;
 		
 		public function Slider(rail:DisplayObject, buffer:DisplayObject, progress:DisplayObject, thumb:DisplayObject, capLeft:DisplayObject=null, capRight:DisplayObject=null) {
 			super();
@@ -51,13 +55,48 @@ package com.longtailvideo.jwplayer.view.components {
 			_capLeft = addElement(capLeft, "capleft", true);
 			_capRight = addElement(capRight, "capright", true);
 			_clickArea = addElement(null, "clickarea", true);
-			
+
+
+            thumb && setupThumb();
+
 			_clickArea.addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
 			_clickArea.addEventListener(MouseEvent.MOUSE_OVER, overHandler);
 			_clickArea.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 		}
 		
-		
+
+        private function setupThumb():void{
+            _clickArea.addEventListener(MouseEvent.MOUSE_OVER, onMouseThumbHandler,false,0,true);
+        }
+
+        private function onMouseMoveThumbHandler(event:MouseEvent):void
+        {
+          //  var pos:Number = event.localX;
+          //  var percent:Number = pos / _clickArea.width;
+
+          //  var global_pt:Point = _clickArea.localToGlobal(new Point(event.localX, event.localY));
+          //  var local_pt:Point = _thumb.parent.globalToLocal(global_pt);
+            _thumb.x = event.localX;
+        }
+
+
+        private function onMouseThumbHandler(event:MouseEvent):void
+        {
+            if(MouseEvent.MOUSE_OVER === event.type){
+                _thumbIsLocked = false;
+                _clickArea.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMoveThumbHandler);
+                _clickArea.addEventListener(MouseEvent.MOUSE_OUT, onMouseThumbHandler,false,0,true);
+                _clickArea.removeEventListener(MouseEvent.MOUSE_OVER, onMouseThumbHandler);
+            }else{
+                _clickArea.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMoveThumbHandler);
+                _clickArea.removeEventListener(MouseEvent.MOUSE_OUT, onMouseThumbHandler);
+                _clickArea.addEventListener(MouseEvent.MOUSE_OVER, onMouseThumbHandler,false,0,true);
+
+                _thumbIsLocked = true;
+                resize(this.width, this.height);
+            }
+        }
+
 		private function addElement(element:DisplayObject, name:String, visible:Boolean=false):Sprite {
 			if (!element) {
 				element = new Sprite();
@@ -110,28 +149,34 @@ package com.longtailvideo.jwplayer.view.components {
 			_height = height;
 			_capLeft.x = 0;
 			_capRight.x = width - _capRight.width;
-			
-			var railMap:DisplayObject = _rail.getChildByName("bitmap"); 
+			var railMap:DisplayObject = _rail.getChildByName("bitmap");
 			if (railMap) {
 				railMap.width = _width;
 				railMap.x = _capLeft.width;
 				resizeElement(railMap);
 			}
+
 			var bufferMap:DisplayObject = _buffer.getChildByName("bitmap"); 
 			if (bufferMap) {
 				bufferMap.width = _width * (1 - (_bufferOffset / 100));
 				bufferMap.x = _capLeft.width + _width * _bufferOffset / 100;
 				resizeElement(bufferMap, _currentBuffer);
 			}
-			var progressMap:DisplayObject = _progress.getChildByName("bitmap"); 
+
+			var progressMap:DisplayObject = _progress.getChildByName("bitmap");
 			if (progressMap && !_dragging) {
 				progressMap.width = _width;
 				progressMap.x = _capLeft.width;
 				resizeElement(progressMap, _currentProgress);
 			}
-			if (_thumb && !_dragging) {
+
+
+			if (_thumb && !_dragging && _thumbIsLocked) {
 				_thumb.x = _capLeft.width + (_width-_thumb.width) * _currentThumb / 100;
 			}
+
+
+
 			_clickArea.graphics.clear();
 			_clickArea.graphics.beginFill(0, 0);
 			_clickArea.graphics.drawRect(_capLeft.width, 0, _width, height); 

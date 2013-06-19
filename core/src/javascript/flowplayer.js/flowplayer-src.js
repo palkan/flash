@@ -1155,7 +1155,7 @@ function Iterator(arr) {
 }
 
 // these two variables are the only global variables
-window.flowplayer = window.$f = function() {
+window.flash_flowplayer = window.$f = function() {
 	var instance = null;
 	var arg = arguments[0];
 
@@ -1277,7 +1277,7 @@ extend(window.$f, {
 
 if (typeof jQuery == 'function') {
 
-	jQuery.fn.flowplayer = function(params, conf) {
+	jQuery.fn.flash_flowplayer = function(params, conf) {
 
 		// select instances
 		if (!arguments.length || typeof arguments[0] == 'number') {

@@ -137,7 +137,7 @@ package org.flowplayer.view {
 
 			if (! VersionInfo.commercial) {
 				log.debug("Adding logo to canvas");
-				createLogoForCanvas();
+				//createLogoForCanvas();
 			}
 
 			log = new Log(this);
@@ -191,13 +191,13 @@ package org.flowplayer.view {
 
 			addScreenToPanel();
 
-			if (!validateLicenseKey()) {
+			/*if (!validateLicenseKey()) {
 				createLogoForCanvas();
 				resizeCanvasLogo();
-			}
+			}  */
 			
-			log.debug("creating logo");
-			createLogo();
+			//log.debug("creating logo");
+			//createLogo();
 			
 			contextMenu = new ContextMenuBuilder(_config.playerId, _config.contextMenu).build();
 			
@@ -490,9 +490,9 @@ package org.flowplayer.view {
 						}
 						_panel.addView(model.getDisplayObject(), undefined, model);
 					}
-					if (model.name == "controls") {
+					/*if (model.name == "controls") {
 						_controlsModel = model;
-					}
+					} */
 				}
 			}
 			if (_controlsModel) {

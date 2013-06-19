@@ -46,8 +46,10 @@ package org.flowplayer.ui {
         private var _model:DisplayPluginModel;
         private var _hideListener:Function;
         private var _showListener:Function;
+        private var _direction:String;
 
-        public function AutoHide(model:DisplayPluginModel, config:AutoHideConfig, player:Flowplayer, stage:Stage, displayObject:DisplayObject) {
+
+        public function AutoHide(model:DisplayPluginModel, config:AutoHideConfig, player:Flowplayer, stage:Stage, displayObject:DisplayObject, hideDirection:String = "down") {
             //            Assert.notNull(model, "model cannot be null");
             Assert.notNull(config, "config cannot be null");
             Assert.notNull(player, "player cannot be null");
@@ -59,6 +61,7 @@ package org.flowplayer.ui {
             _player = player;
             _stage = stage;
             _disp = displayObject;
+            _direction = hideDirection;
 
             updateDisplayProperties();
 
@@ -434,13 +437,26 @@ package org.flowplayer.ui {
         }
 
         private function getHiddenPosition():Object {
-            if (_stage.displayState == StageDisplayState.FULL_SCREEN && _stage.hasOwnProperty("fullScreenSourceRect")) {
-                var rect:Rectangle = _stage.fullScreenSourceRect;
-                if (rect) {
-                    return rect.height;
+
+            var position:Number;
+
+            if(_direction === 'down'){
+
+
+                if (_stage.displayState == StageDisplayState.FULL_SCREEN && _stage.hasOwnProperty("fullScreenSourceRect")) {
+                    var rect:Rectangle = _stage.fullScreenSourceRect;
+                    if (rect) {
+                        return rect.height;
+                    }
                 }
+                position = _stage.stageHeight;
+            }else{
+
+                position = -_stage.stageHeight;
+
             }
-            return _stage.stageHeight;
+
+            return position;
         }
     }
 }

@@ -1,6 +1,4 @@
 package com.longtailvideo.jwplayer.utils {
-	import com.adobe.serialization.json.JSONDecoder;
-	
 	/**
 	 * This class groups a couple of commonly used string operations.
 	 * @author Jeroen Wijering
@@ -81,7 +79,7 @@ package com.longtailvideo.jwplayer.utils {
 			} else if (val.indexOf("[[JSON]]") == 0) {
 				var jsonString:String = val.substring(8, val.length);
 				try {
-					return (new JSONDecoder(jsonString, false)).getValue();
+					return JSON.parse(jsonString);
 				} catch(e:Error) {
 					Logger.log("Error parsing JSON string: " + e.message + ".  String: " + jsonString);
 				}
