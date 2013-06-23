@@ -40,6 +40,8 @@ public class ControlsSkin extends EventDispatcher implements ISkin {
     public var FullScreen:Class;
     [Embed(source="../../../../../../../../ruskin/controlbar/normalscreenButton.png")]
     public var NormalScreen:Class;
+    [Embed(source="../../../../../../../../ruskin/controlbar/tooltip.png")]
+    public var TimeTooltipBack:Class;
 
     [Embed(source="../../../../../../../../ruskin/RussiaSport/timeSliderThumb.png")]
     public var TimeSliderThumb:Class;
@@ -74,13 +76,13 @@ public class ControlsSkin extends EventDispatcher implements ISkin {
             volumeSliderRail: VolumeRail,
             volumeSliderProgress: VolumeProgress,
             fullscreenButton: FullScreen,
-            normalscreenButton: NormalScreen
-            ,
+            normalscreenButton: NormalScreen,
             russiasportButton:RussiaSportIcon,
             russiasportTooltip:RussiaSportTooltip,
             plusoneButton:PlusOneIcon,
             timeSliderThumb:TimeSliderThumb,
-            volumeSliderThumb:VolumeSliderThumb
+            volumeSliderThumb:VolumeSliderThumb,
+            timeTooltipBg: TimeTooltipBack
         }
     };
 

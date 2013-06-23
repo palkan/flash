@@ -22,6 +22,7 @@ import com.longtailvideo.jwplayer.plugins.PluginConfig;
 import com.longtailvideo.jwplayer.utils.Logger;
 import com.longtailvideo.jwplayer.view.IPlayerComponents;
 import com.longtailvideo.jwplayer.view.components.ControlbarComponent;
+import com.longtailvideo.jwplayer.view.components.TimeTooltip;
 import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
 import com.longtailvideo.jwplayer.view.interfaces.ISkin;
 
@@ -32,6 +33,7 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 
 import flash.events.TimerEvent;
+import flash.geom.Point;
 import flash.net.URLRequest;
 import flash.net.navigateToURL;
 
@@ -84,6 +86,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     private var _logoButton:DisplayObject;
 
+    private var _sliderTooltip:TimeTooltip;
+
     public function JWWrapper(player:Flowplayer, config:Object = null) {
 
 
@@ -124,6 +128,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
         Logger.setConfig(_config);
 
+
+
         _player.playlist.onBeforeBegin(function(e:ClipEvent){  Logger.log('begin'); _currentClip = _player.currentClip; dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED,playlist)); _currentClip.onAll(onClipEvent)});
 
         _player.onVolume(function(e:PlayerEvent):void{
@@ -134,6 +140,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         _player.onMute(onMuteEvent);
         _player.onUnmute(onMuteEvent);
 
+        _player.playlist.onSeek(onTimeUpdate);
 
         _timeUpdateTimer = new Timer(100);
         _timeUpdateTimer.addEventListener(TimerEvent.TIMER, onTimeUpdate);
@@ -147,7 +154,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     }
 
-    protected function onTimeUpdate(e:TimerEvent):void{
+    protected function onTimeUpdate(e:Event = null):void{
 
         if(!_updateTime && !_updateBuffer){
             stopTimer();
@@ -256,6 +263,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     protected function addCustomButtons():void{
         addRussiaSportButton();
+        addTimeTooltip();
         // hd button
         // plus one button
     }
@@ -302,6 +310,86 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     }
 
+    protected function addTimeTooltip():void{
+
+        Logger.log('time tooltip');
+
+        var _sliderTooltipBg = _skin.getSkinElement("controlbar", "timeTooltipBg");
+        _sliderTooltip = new TimeTooltip();
+        _sliderTooltip.background = _sliderTooltipBg;
+        _sliderTooltip.y = -32;
+        _sliderTooltip.visible = false;
+
+        _sliderTooltip.addEventListener(MouseEvent.MOUSE_OVER,onTooltipOver,true);
+        _sliderTooltip.addEventListener(MouseEvent.MOUSE_OUT,onTooltipOut,true);
+
+        function onTooltipOut(event:MouseEvent):void
+        {
+            _sliderTooltip.visible = false;
+        }
+
+        function onTooltipOver(event:MouseEvent):void
+        {
+            _sliderTooltip.visible=true;
+        }
+
+        _controlbar.addChild(_sliderTooltip);
+
+        var _timeSlider = _controlbar.getSlider('time');
+
+        if(!_timeSlider) throw new Error('no time slider');
+
+        Logger.log('time slider found');
+
+        _timeSlider.addEventListener(MouseEvent.MOUSE_OVER, onMouseHandler,false,0,true);
+        _timeSlider.addEventListener(MouseEvent.MOUSE_OUT, onMouseHandler,false,0,true);
+        _timeSlider.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMoveHandler);
+
+        function onMouseHandler(event:MouseEvent):void
+        {
+            _sliderTooltip.visible = (MouseEvent.MOUSE_OVER === event.type && 0 < _player.status.clip.duration);
+        }
+
+        function onMouseMoveHandler(event:MouseEvent):void
+        {
+            const _duration:Number = _player.status.clip.duration;
+            if ( 0 < _duration )
+            {
+                var pos:Number = event.localX;
+                var percent:Number = pos / _timeSlider.width;
+
+                _sliderTooltip.text = toTimeString(Math.round(percent * _duration));
+
+                var global_pt:Point = _timeSlider.localToGlobal(new Point(event.localX, event.localY));
+                var local_pt:Point = _sliderTooltip.parent.globalToLocal(global_pt);
+                _sliderTooltip.x = local_pt.x;
+            }
+        }
+
+        function toTimeString(n:int):String
+        {
+            var time_str:String = "";
+            if (n >= 3600 && true===Boolean(_config['displayhours']))
+            {	// Longer than one hour
+                var hours:uint = Math.floor(n / 3600);
+                time_str += Math.floor(n / 3600) + ":";
+                n -= 3600 * hours;
+            }
+            time_str += pad(Math.floor(n / 60), 2) + ":" + pad(Math.floor(n % 60), 2);
+            return time_str;
+        }
+
+        function pad(n:Number, padLength:uint):String
+        {
+            var str:String = n.toString();
+            while ( str.length < padLength )
+            {
+                str = "0" + str;
+            }
+            return str;
+        }
+
+    }
 
     public function resize(w:Number,h:Number):void{
         _controlbar && _controlbar.resize(w,h);

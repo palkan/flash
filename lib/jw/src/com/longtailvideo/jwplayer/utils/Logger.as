@@ -68,7 +68,7 @@ package com.longtailvideo.jwplayer.utils {
 		
 		/** Send the messages to the output system. **/
 		private static function send(text:String):void {
-			var debug:String = _config ? _config.debug : TRACE;
+			var debug:String = _config ? _config.debug : CONSOLE;
 			switch (debug) {
 				case ARTHROPOD:
 					try {
