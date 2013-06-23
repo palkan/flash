@@ -5,7 +5,8 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.model.Color;
 	import com.longtailvideo.jwplayer.player.IPlayer;
-	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
+import com.longtailvideo.jwplayer.utils.Logger;
+import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
 	
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
@@ -58,6 +59,9 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		protected function sendShow():void {
 			if (!_sentShow) {
+
+                Logger.log(_playerReady, 'controlbar_show');
+
 				if (_playerReady) {
 					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, displayRect));
 					_sentShow = true;

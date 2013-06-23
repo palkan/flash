@@ -4,12 +4,14 @@
  * Time: 8:37 AM
  */
 package org.flowplayer.rs.controls {
+import com.longtailvideo.jwplayer.events.ComponentEvent;
 import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
 import com.longtailvideo.jwplayer.events.IGlobalEventDispatcher;
 import com.longtailvideo.jwplayer.events.MediaEvent;
 import com.longtailvideo.jwplayer.events.PlayerStateEvent;
 import com.longtailvideo.jwplayer.events.PlaylistEvent;
 import com.longtailvideo.jwplayer.events.ViewEvent;
+
 import com.longtailvideo.jwplayer.model.IInstreamOptions;
 import com.longtailvideo.jwplayer.model.IPlaylist;
 import com.longtailvideo.jwplayer.model.PlayerConfig;
@@ -27,20 +29,17 @@ import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
 import com.longtailvideo.jwplayer.view.interfaces.ISkin;
 
 import flash.display.DisplayObject;
-
+import flash.display.MovieClip;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
-
 import flash.events.TimerEvent;
 import flash.geom.Point;
 import flash.net.URLRequest;
 import flash.net.navigateToURL;
-
 import flash.utils.Timer;
 
-import mx.effects.effectClasses.ZoomInstance;
-
+import org.flowplayer.httpstreaming.HttpStreamingProvider;
 import org.flowplayer.model.Clip;
 import org.flowplayer.model.ClipEvent;
 import org.flowplayer.model.ClipEventType;
@@ -88,6 +87,10 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     private var _sliderTooltip:TimeTooltip;
 
+    private var _timeSlider:DisplayObject;
+
+    private var _liveButton:Sprite;
+
     public function JWWrapper(player:Flowplayer, config:Object = null) {
 
 
@@ -130,7 +133,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
 
 
-        _player.playlist.onBeforeBegin(function(e:ClipEvent){  Logger.log('begin'); _currentClip = _player.currentClip; dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED,playlist)); _currentClip.onAll(onClipEvent)});
+        _player.playlist.onBeforeBegin(function(e:ClipEvent){  Logger.log('begin'); currentClip = _player.currentClip; dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED,playlist)); _currentClip.onAll(onClipEvent)});
 
         _player.onVolume(function(e:PlayerEvent):void{
             _config.volume = e.info as Number;
@@ -144,6 +147,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
         _timeUpdateTimer = new Timer(100);
         _timeUpdateTimer.addEventListener(TimerEvent.TIMER, onTimeUpdate);
+
 
     }
 
@@ -164,10 +168,24 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         var b_event:MediaEvent = new MediaEvent(MediaEvent.JWPLAYER_MEDIA_TIME);
             b_event.bufferPercent = _player.status.bufferEnd - _player.status.bufferStart;
             b_event.offset = _player.status.bufferStart;
-            Logger.log(b_event.bufferPercent+' - '+b_event.offset,'buffer_start_end');
+           // Logger.log(b_event.bufferPercent+' - '+b_event.offset,'buffer_start_end');
 
             b_event.duration = _player.status.clip.live && _player.status.clip.duration == 0 ? -1 : _player.status.clip.duration;
             b_event.position = _player.status.time;
+
+
+        if(_liveButton){
+            var livePosition:Number = Math.max(0, (_player.streamProvider as HttpStreamingProvider).dvrSeekOffset);
+
+            Logger.log(livePosition,'live');
+            Logger.log(b_event.duration,'duration');
+
+            if(livePosition && _timeSlider){
+                const position:Number = _timeSlider.width * (livePosition / b_event.duration);
+                _liveButton.x = (position > _liveButton.width) ? position : _liveButton.width;
+
+            }
+        }
 
         dispatchEvent(b_event);
     }
@@ -186,11 +204,13 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         switch(e.eventType){
 
             case ClipEventType.PAUSE:
-                _updateTime = false;
+             //   _updateTime = false;
                 dispatchEvent(new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,state,null));
                 break;
             case ClipEventType.START:
             case ClipEventType.PLAY_STATUS:
+                if(e.info.type && e.info.type == 'dvr')
+                    setupDVRInfo(e.info.info);
             case ClipEventType.BUFFER_FULL:
                 _updateTime = true;
                 startTimer();
@@ -226,6 +246,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         _controlbar.addEventListener(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, fullscreenHanlder);
         _controlbar.addEventListener(ViewEvent.JWPLAYER_VIEW_VOLUME,volumeHandler);
         addCustomButtons();
+
+        dispatchEvent(new com.longtailvideo.jwplayer.events.PlayerEvent(com.longtailvideo.jwplayer.events.PlayerEvent.JWPLAYER_READY));
     }
 
 
@@ -263,6 +285,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     protected function addCustomButtons():void{
         addRussiaSportButton();
+       // addLiveButton();
         addTimeTooltip();
         // hd button
         // plus one button
@@ -310,6 +333,36 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     }
 
+    protected function addLiveButton():void{
+
+        Logger.log('adding live');
+
+       _liveButton = new MovieClip();
+
+        const _liveBG = _skin.getSkinElement('controlbar','liveIcon');
+
+        _liveBG.x = -_liveBG.width;
+        _liveButton.addChild(_liveBG);
+
+        _liveButton.y = -_liveBG.height - 12;
+        _liveButton.x = _liveButton.width;
+
+        _liveButton.addEventListener(MouseEvent.CLICK, seekToLive);
+
+        _controlbar.addEventListener(ComponentEvent.JWPLAYER_COMPONENT_HIDE, function(e:Event){ _liveButton.visible = false;});
+        _controlbar.addEventListener(ComponentEvent.JWPLAYER_COMPONENT_SHOW, function(e:Event){ _liveButton.visible = true;});
+
+        _controlbar.addChild(_liveButton);
+    }
+
+
+    protected function seekToLive(e:MouseEvent):void{
+
+        var livePosition:Number = Math.max(0, (_player.streamProvider as HttpStreamingProvider).dvrSeekOffset);
+       Logger.log(livePosition, 'seek_live');
+        _player.seek(livePosition);
+    }
+
     protected function addTimeTooltip():void{
 
         Logger.log('time tooltip');
@@ -335,9 +388,9 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
         _controlbar.addChild(_sliderTooltip);
 
-        var _timeSlider = _controlbar.getSlider('time');
+        _timeSlider = _controlbar.getSlider('time');
 
-        if(!_timeSlider) throw new Error('no time slider');
+        if(!_timeSlider) return;
 
         Logger.log('time slider found');
 
@@ -390,6 +443,19 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         }
 
     }
+
+
+    private function setupDVRInfo(info:Object = null):void{
+
+     //   const dvr_info:Object = info || ((_player.streamProvider as HttpStreamingProvider) && (_player.streamProvider as HttpStreamingProvider).dvrInfo);
+
+     //   Logger.log(dvr_info, 'DVR_INFO');
+
+     //   if(dvr_info && !dvr_info.isRecording){
+            !_liveButton && addLiveButton();
+     //   }
+    }
+
 
     public function resize(w:Number,h:Number):void{
         _controlbar && _controlbar.resize(w,h);
@@ -542,5 +608,11 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         return super.dispatchEvent(event);
     }
 
+    public function set currentClip(value:Clip):void {
+        _currentClip = value;
+
+      // setupDVRInfo();
+
+    }
 }
 }

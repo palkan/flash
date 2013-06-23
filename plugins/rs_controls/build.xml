@@ -10,7 +10,8 @@
     <property name="releasedir" value="flowplayer.controls" />
 
     <!-- location of the skin swd, anc swc -->
-    <property name="extra-sources" value="../../lib/common/src/actionscript ${jw-dir}" />
+    <property name="extra-sources" value="../bwcheck/src/actionscript ../../lib/common/src/actionscript ${jw-dir} ${http-streaming} ${osmf-dir}" />
+    <property name="compiler-defines" value="-define+=CONFIG::LOGGING,'false' -define+=CONFIG::FLASH_10_1,'true'"/>
 
 
     <property file="${devkit-dir}/plugin-build.properties" />

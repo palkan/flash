@@ -59,6 +59,9 @@ public class ControlsSkin extends EventDispatcher implements ISkin {
     [Embed(source="../../../../../../../../ruskin/RussiaSport/plusone.png")]
     public var PlusOneIcon:Class;
 
+    [Embed(source="../../../../../../../../ruskin/controlbar/live.png")]
+    public var LiveIcon:Class;
+
 
 
     private var _elements:Object = {
@@ -82,7 +85,8 @@ public class ControlsSkin extends EventDispatcher implements ISkin {
             plusoneButton:PlusOneIcon,
             timeSliderThumb:TimeSliderThumb,
             volumeSliderThumb:VolumeSliderThumb,
-            timeTooltipBg: TimeTooltipBack
+            timeTooltipBg: TimeTooltipBack,
+            liveIcon: LiveIcon
         }
     };
 

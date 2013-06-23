@@ -203,7 +203,7 @@ package com.longtailvideo.jwplayer.view.components {
 					clearTimeout(_fadingOut);
 				}
 
-                Logger.log('start fader');
+               // Logger.log('start fader');
 				_fadingOut = setTimeout(moveTimeout, 2000);
 			}
 		}
@@ -234,13 +234,9 @@ package com.longtailvideo.jwplayer.view.components {
 		private function moveTimeout(evt:Event=null):void {
 			if (!hidden) {
 
-                Logger.log(_hiddenY+' '+y,'hidden y');
-				
+
 				if (y<_hiddenY) {
 					sendHide();
-					Logger.log(_hiddenY,'ease');
-					Logger.log(y,'ease');
-					Logger.log(x,'ease');
 					//y = _hiddenY;
 					//animations.fade(0, 0.5);
 					animations.ease(x,_hiddenY,2);
@@ -255,7 +251,7 @@ package com.longtailvideo.jwplayer.view.components {
 		/** If the mouse leaves the stage, hide the controlbar if position is 'over' **/
 		private function mouseLeftStage(evt:Event=null):void {
 
-            Logger.log(_player.config.pluginConfig('controlbar'),'config_controlbar');
+      //      Logger.log(_player.config.pluginConfig('controlbar'),'config_controlbar');
 
 			if (fadeOnTimeout && !hidden) {
 				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
@@ -269,7 +265,7 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		private function stateHandler(evt:PlayerEvent=null):void {
 
-            Logger.log(_player.state,'JW_STATE');
+   //         Logger.log(_player.state,'JW_STATE');
 
 			switch(_player.state) {
 				case PlayerState.BUFFERING:
@@ -436,7 +432,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 			var volume:Slider = _volSlider;
 			if (volume) {
-                Logger.log(_player.config.volume,'volume');
+       //         Logger.log(_player.config.volume,'volume');
 				var volumeWidth:Number = getSkinElement("volumeSliderRail").width + volume.capsWidth;
 				if (!_player.config.mute) {
 					volume.setBuffer(100);
@@ -461,7 +457,7 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			var elapsedText:TextField = getTextField('elapsed');
 			if (elapsedText){
-                Logger.log(Strings.digits(position),'elapsed');
+        //        Logger.log(Strings.digits(position),'elapsed');
 				elapsedText.text = Strings.digits(position)+" // "+Strings.digits(duration);
 				var textFormat:TextFormat = new TextFormat();
 				textFormat.color = 0x9a9a9a;
@@ -587,7 +583,7 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			
 			
-			Logger.log(textFormat.color, 'color');
+		//	Logger.log(textFormat.color, 'color');
 			
 			//if(name!="elapsed")
 			//textFormat2.color = 0x9a9a9a;

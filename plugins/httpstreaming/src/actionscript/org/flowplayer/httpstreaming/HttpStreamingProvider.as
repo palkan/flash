@@ -248,7 +248,7 @@ package org.flowplayer.httpstreaming {
             });
         }
 
-        private function get dvrSeekOffset():Number
+        public function get dvrSeekOffset():Number
         {
             return clip.duration - netStream.bufferTime - _config.dvrSnapToLiveClockOffset;
         }
@@ -284,6 +284,14 @@ package org.flowplayer.httpstreaming {
             if (!clip) return 0;
             if (!netStream) return 0;
             return getCurrentPlayheadTime(netStream) + netStream.bufferLength;
+        }
+
+        public function get dvrInfo():DVRInfo {
+            return _dvrInfo;
+        }
+
+        public function get dvrIsRecording():Boolean {
+            return _dvrIsRecording;
         }
     }
 }
