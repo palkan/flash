@@ -63,7 +63,17 @@ import flash.geom.Rectangle;
 			_clickArea.addEventListener(MouseEvent.MOUSE_OVER, overHandler);
 			_clickArea.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 		}
-		
+
+
+        public function progressColor(value:uint):void{
+
+            var _transform:ColorTransform = new ColorTransform();
+            _transform.color = value;
+
+            _progress.transform.colorTransform = _transform;
+
+        }
+
 
         private function setupThumb():void{
             _clickArea.addEventListener(MouseEvent.MOUSE_OVER, onMouseThumbHandler,false,0,true);

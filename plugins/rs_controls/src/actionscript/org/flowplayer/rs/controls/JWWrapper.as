@@ -24,6 +24,7 @@ import com.longtailvideo.jwplayer.plugins.PluginConfig;
 import com.longtailvideo.jwplayer.utils.Logger;
 import com.longtailvideo.jwplayer.view.IPlayerComponents;
 import com.longtailvideo.jwplayer.view.components.ControlbarComponent;
+import com.longtailvideo.jwplayer.view.components.Slider;
 import com.longtailvideo.jwplayer.view.components.TimeTooltip;
 import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
 import com.longtailvideo.jwplayer.view.interfaces.ISkin;
@@ -90,6 +91,10 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
     private var _timeSlider:DisplayObject;
 
     private var _liveButton:Sprite;
+
+    private var _inLivePosition:Boolean = false;
+
+    private var _wasCalledSeekLive:Boolean = false;
 
     public function JWWrapper(player:Flowplayer, config:Object = null) {
 
@@ -175,16 +180,25 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
 
         if(_liveButton){
-            var livePosition:Number = Math.max(0, (_player.streamProvider as HttpStreamingProvider).dvrSeekOffset);
 
-            Logger.log(livePosition,'live');
-            Logger.log(b_event.duration,'duration');
+            var position = 0;
 
-            if(livePosition && _timeSlider){
-                const position:Number = _timeSlider.width * (livePosition / b_event.duration);
-                _liveButton.x = (position > _liveButton.width) ? position : _liveButton.width;
+            if(!_inLivePosition){
 
+                const _livePos:Number = livePosition;
+                //Logger.log(livePosition,'live');
+                // Logger.log(b_event.duration,'duratio
+
+                if(_livePos && _timeSlider){
+                    position = _timeSlider.width * (_livePos / b_event.duration);
+                }
+
+            }else{
+
+                position = _timeSlider.width * (b_event.position / b_event.duration);
             }
+
+            position && (_liveButton.x = (position > _liveButton.width) ? position : _liveButton.width);
         }
 
         dispatchEvent(b_event);
@@ -231,6 +245,13 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
             case ClipEventType.BUFFER_STOP:
                 _updateBuffer = false;
                 break;
+            case ClipEventType.SEEK:
+               if(_wasCalledSeekLive) _wasCalledSeekLive = false;
+               else{
+                 _inLivePosition = false;
+                 onTimeUpdate();
+               }
+                break;
 
         }
 
@@ -272,6 +293,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
         Logger.log(e.data,'seek');
         _player.seekRelative(e.data);
+        _inLivePosition = false;
+        onTimeUpdate();
 
     }
 
@@ -337,6 +360,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
         Logger.log('adding live');
 
+        // 1FAAF0
+
        _liveButton = new MovieClip();
 
         const _liveBG = _skin.getSkinElement('controlbar','liveIcon');
@@ -353,14 +378,22 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         _controlbar.addEventListener(ComponentEvent.JWPLAYER_COMPONENT_SHOW, function(e:Event){ _liveButton.visible = true;});
 
         _controlbar.addChild(_liveButton);
+
+
+        (_timeSlider as Slider).progressColor(0x1FAAF0);
+
+        seekToLive();
     }
 
 
-    protected function seekToLive(e:MouseEvent):void{
+    protected function seekToLive(e:MouseEvent = null):void{
 
         var livePosition:Number = Math.max(0, (_player.streamProvider as HttpStreamingProvider).dvrSeekOffset);
        Logger.log(livePosition, 'seek_live');
         _player.seek(livePosition);
+
+        _wasCalledSeekLive = true;
+        _inLivePosition = true;
     }
 
     protected function addTimeTooltip():void{
@@ -614,5 +647,14 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
       // setupDVRInfo();
 
     }
+
+    public function get livePosition():Number{
+
+        if((_player.streamProvider as HttpStreamingProvider))
+            return Math.max(0, (_player.streamProvider as HttpStreamingProvider).dvrSeekOffset);
+
+        return 0;
+    }
+
 }
 }
