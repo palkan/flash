@@ -97,7 +97,7 @@ package org.flowplayer.view {
 			}
 			if (! label && (! _button || (_button is LabelPlayButton))) {
                 log.debug("switching to standard non-label button ");
-				switchButton(new PlayOverlay());
+				switchButton(BuiltInAssetHelper.createPlayButton() || new PlayOverlay());
 			}
 			if (label) {
 				LabelPlayButton(_button).setLabel(label, _resizeToTextWidth);
@@ -204,7 +204,7 @@ package org.flowplayer.view {
 			// onBeforeFinish: call stopBuffering first and then showButton (stopBuffering hides the button)
 			eventSupport.onBeforeFinish(stopBuffering);
 
-			eventSupport.onBeforeFinish(showReplayButton, isParentClipOrPostroll);
+			//eventSupport.onBeforeFinish(showReplayButton, isParentClipOrPostroll);
 
             // showing the buffer animation on buffer empty causes trouble with live streams and also on other cases
             //#395 apply buffer animation status to VOD streams only.
@@ -386,7 +386,7 @@ package org.flowplayer.view {
 		}
 		
 		public function showReplayButton(event:ClipEvent = null):void {
-            
+
 			log.info("showReplayButton, playlist has more clips " + _playlist.hasNext(false));
 			if (event.isDefaultPrevented() && _playlist.hasNext(false)) {
 				// default prevented, will stop after current clip. Show replay button.

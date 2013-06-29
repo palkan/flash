@@ -62,6 +62,9 @@ public class ControlsSkin extends EventDispatcher implements ISkin {
     [Embed(source="../../../../../../../../ruskin/controlbar/live.png")]
     public var LiveIcon:Class;
 
+    [Embed(source="../../../../../../../../ruskin/header/more.png")]
+    public var RelatedButIcon:Class;
+
 
 
     private var _elements:Object = {
@@ -86,7 +89,8 @@ public class ControlsSkin extends EventDispatcher implements ISkin {
             timeSliderThumb:TimeSliderThumb,
             volumeSliderThumb:VolumeSliderThumb,
             timeTooltipBg: TimeTooltipBack,
-            liveIcon: LiveIcon
+            liveIcon: LiveIcon,
+            relBut: RelatedButIcon
         }
     };
 

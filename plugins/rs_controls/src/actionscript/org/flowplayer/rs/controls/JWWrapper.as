@@ -24,6 +24,8 @@ import com.longtailvideo.jwplayer.plugins.PluginConfig;
 import com.longtailvideo.jwplayer.utils.Logger;
 import com.longtailvideo.jwplayer.view.IPlayerComponents;
 import com.longtailvideo.jwplayer.view.components.ControlbarComponent;
+import com.longtailvideo.jwplayer.view.components.RSButton;
+import com.longtailvideo.jwplayer.view.components.RSButtonIcon;
 import com.longtailvideo.jwplayer.view.components.Slider;
 import com.longtailvideo.jwplayer.view.components.TimeTooltip;
 import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
@@ -36,8 +38,10 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.events.TimerEvent;
 import flash.geom.Point;
+import flash.net.URLLoader;
 import flash.net.URLRequest;
 import flash.net.navigateToURL;
+import flash.system.Capabilities;
 import flash.utils.Timer;
 
 import org.flowplayer.httpstreaming.HttpStreamingProvider;
@@ -95,6 +99,9 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
     private var _inLivePosition:Boolean = false;
 
     private var _wasCalledSeekLive:Boolean = false;
+
+
+
 
     public function JWWrapper(player:Flowplayer, config:Object = null) {
 
@@ -237,6 +244,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
                 break;
             case ClipEventType.FINISH:
                 stopTimer();
+                _player.stop();
+                dispatchEvent(new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,state,null));
                 break;
             case ClipEventType.BEGIN:
                 startTimer();
@@ -313,6 +322,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         // hd button
         // plus one button
     }
+
 
     protected function addRussiaSportButton():void{
 
