@@ -137,7 +137,7 @@ package org.flowplayer.bitrateselect {
                 controlbar.pluginObject.addEventListener(WidgetContainerEvent.CONTAINER_READY, function(event:WidgetContainerEvent):void {
                     _menuPlugin = lookupMenu();
                     //disable the menu button widget
-                    if (_menuPlugin) _menuPlugin.menuButtonController.view.enabled = false;
+                  //  if (_menuPlugin) _menuPlugin.menuButtonController.view.enabled = false;
                 });
             }
 
@@ -205,8 +205,8 @@ package org.flowplayer.bitrateselect {
                 _menuItems.push(_menuPlugin["addItem"](
                         {
                             selectedCallback: function(menuItem:Object):void {
-                                log.debug("switching to bitrate " + menuItem.getCustomProperty("bitrateItem").bitrate);
-                                _streamSwitchManager.switchStream(menuItem.getCustomProperty("bitrateItem"));
+                                log.debug("switching to bitrate " + menuItem["bitrateItem"].bitrate);
+                                _streamSwitchManager.switchStream(menuItem["bitrateItem"]);
                             },
                             //#586 set a default menu label to the bitrate with a k postfix if the bitrate label is not set.
                             label: item.label ? item.label : item.bitrate + "k",
@@ -221,7 +221,7 @@ package org.flowplayer.bitrateselect {
             log.debug("initBitrateMenu(), new menu item indexes: " + _menuItems.toString() + ", the menu has " + _menuPlugin["length"] + " items");
             _menuShowsBitratesFor = clip;
 
-            _menuPlugin.menuButtonController.view.enabled = true;
+            _menuPlugin['enabled'] = true;
         }
 
         private function lookupMenu():Object {
@@ -356,8 +356,8 @@ package org.flowplayer.bitrateselect {
 
                 //#563 if the menu plugin is set, select the item in the list
                 if (_menuPlugin) {
-                    _menuPlugin.selectItemInGroup(bitrateItem.index, "bitrate");
-                    _menuPlugin.visible = false;
+                    _menuPlugin.selectItemInGroup(bitrateItem.label, "bitrate");
+                   // _menuPlugin.visible = false;
                 }
 
                 _streamSwitchManager.switchStream(bitrateItem);

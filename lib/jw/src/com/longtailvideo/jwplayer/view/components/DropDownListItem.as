@@ -21,7 +21,7 @@ package com.longtailvideo.jwplayer.view.components
 		*/
 		
 		public var _label:String;
-		public var file:String;
+		private var _data:Object;
 		
 		
 		private var rect:Sprite;
@@ -45,7 +45,7 @@ package com.longtailvideo.jwplayer.view.components
 	//		this.height = h;
 			
 			_label = data['label'];
-			file = data['file'];
+			_data = data;
 			
 			rect = Draw.rect(this as Sprite,"0x000000",w,h,0,0,1);
 			rect.mouseEnabled = false;
@@ -58,8 +58,7 @@ package com.longtailvideo.jwplayer.view.components
 				_xoffset += icon.width;
 				
 				this.addChild(icon);
-				
-				
+
 			}
 			
 			
@@ -143,5 +142,8 @@ package com.longtailvideo.jwplayer.view.components
 			text.text = value;
 		}
 
-	}
+        public function get data():Object {
+            return _data;
+        }
+    }
 }

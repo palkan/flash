@@ -54,9 +54,7 @@ import flashx.textLayout.formats.LineBreak;
 				_xstep = ((i+1) % 3 == 0) ? 0 : _xstep+rv.wid+hgap;
 				_ystep = ((i+1) % 3 == 0) ? Math.floor((i+1)/3)*(rv.hei+vgap) : _ystep;
 				
-				Logger.log(_xstep,"xstep");
-				Logger.log(_ystep,"ystep");
-				
+
 				this.addChild(rv);
 					
 			}

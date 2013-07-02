@@ -36,19 +36,16 @@ package com.longtailvideo.jwplayer.view.components
 			rect.mouseEnabled = false;
 			this.addEventListener(MouseEvent.CLICK,onClickHandler,true);
 
-			
 		}
 		
 		
 		protected function onClickHandler(event:MouseEvent):void
 		{
-			// TODO Auto-generated method stub
-		//	Logger.log(event.target.name,"list");
 			var tgt = event.target as DropDownListItem;
 			
 			if(Type === "q")
 				setActive(tgt.label);
-			dispatchEvent(new ViewEvent("jwplayerViewClick",{file:tgt.file,label:tgt.label}));
+			dispatchEvent(new ViewEvent("jwplayerViewClick",tgt.data));
 		}
 		
 		public function addItem(data:Object){
@@ -62,7 +59,6 @@ package com.longtailvideo.jwplayer.view.components
 		}
 		
 		public function setActive(label:String):void{
-			//Logger.log(items,'items');
 			if(items[label]!=undefined){
 				(items[label] as DropDownListItem).setActive(true);
 				//Logger.log(items,'items');
@@ -75,7 +71,10 @@ package com.longtailvideo.jwplayer.view.components
 			}
 			
 		}
-		
+
+        public function get length():int{
+            return items['numItems'];
+        }
 		
 	}
 }

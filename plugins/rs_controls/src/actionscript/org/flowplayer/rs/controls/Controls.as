@@ -28,7 +28,9 @@ import org.flowplayer.view.StyleableSprite;
         private var _jwplayer:JWWrapper;
 
 		private var _controlbar:ControlbarComponent;
-		
+
+        private var _waiters:Vector.<Function> = new <Function>[];
+
         public function Controls() {
             log.debug("creating ControlBar");
 			
@@ -56,7 +58,7 @@ import org.flowplayer.view.StyleableSprite;
 
             log.debug("created",width,height);
 
-			_pluginModel.dispatchOnLoad();
+            _pluginModel.dispatchOnLoad();
 		}
 
 		private function onAddedToStage(event:Event):void {
@@ -68,6 +70,10 @@ import org.flowplayer.view.StyleableSprite;
             _controlbar = new ControlbarComponent(_jwplayer);
 
             _jwplayer.controlbar = _controlbar;
+
+            const size:int = _waiters.length;
+            for(var i:int; i<size; i++) (_waiters.pop())(_controlbar);
+
             addChild(_controlbar);
 
 			height = DEFAULT_HEIGHT;
@@ -86,6 +92,15 @@ import org.flowplayer.view.StyleableSprite;
         }
 
 
+        public function wait(success:Function):void{
+
+            if(_controlbar){
+                success(_controlbar);
+                return;
+            }
+
+            _waiters.push(success);
+        }
 
 		
 		

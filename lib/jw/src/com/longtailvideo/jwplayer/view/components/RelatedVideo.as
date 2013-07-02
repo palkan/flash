@@ -73,9 +73,7 @@ public class RelatedVideo extends MovieClip
 				loader.addEventListener(Event.COMPLETE,onImageLoaded);
 				loader.addEventListener(ErrorEvent.ERROR,onError);
 				loader.load(image_url);
-				
-				Logger.log(image_url,"rel url");
-				
+
 				
 			}
 			

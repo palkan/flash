@@ -44,6 +44,8 @@ import flash.net.navigateToURL;
 import flash.system.Capabilities;
 import flash.utils.Timer;
 
+import flashx.textLayout.edit.SelectionManager;
+
 import org.flowplayer.httpstreaming.HttpStreamingProvider;
 import org.flowplayer.model.Clip;
 import org.flowplayer.model.ClipEvent;
@@ -101,6 +103,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
     private var _wasCalledSeekLive:Boolean = false;
 
 
+    private var _lastW:Number = 0;
+    private var _lastH:Number = 0;
 
 
     public function JWWrapper(player:Flowplayer, config:Object = null) {
@@ -123,6 +127,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         _config.debug = 'console';
         _config.controlbar = "over";
         _config.volume = _player.volume;
+        _config.mute = _player.muted;
 
         if(!config){
 
@@ -205,7 +210,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
                 position = _timeSlider.width * (b_event.position / b_event.duration);
             }
 
-            position && (_liveButton.x = (position > _liveButton.width) ? position : _liveButton.width);
+            //position && (_liveButton.x = (position > _liveButton.width) ? position : _liveButton.width);
         }
 
         dispatchEvent(b_event);
@@ -226,6 +231,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
             case ClipEventType.PAUSE:
              //   _updateTime = false;
+                _liveButton && (_inLivePosition = false);
+                onTimeUpdate();
                 dispatchEvent(new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,state,null));
                 break;
             case ClipEventType.START:
@@ -255,11 +262,13 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
                 _updateBuffer = false;
                 break;
             case ClipEventType.SEEK:
-               if(_wasCalledSeekLive) _wasCalledSeekLive = false;
-               else{
-                 _inLivePosition = false;
-                 onTimeUpdate();
-               }
+                if(_liveButton){
+                    if(_wasCalledSeekLive) _wasCalledSeekLive = false;
+                    else{
+                        _inLivePosition = false;
+                        onTimeUpdate();
+                    }
+                }
                 break;
 
         }
@@ -319,7 +328,6 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         addRussiaSportButton();
        // addLiveButton();
         addTimeTooltip();
-        // hd button
         // plus one button
     }
 
@@ -380,8 +388,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         _liveButton.addChild(_liveBG);
 
         _liveButton.y = -_liveBG.height - 12;
-        _liveButton.x = _liveButton.width;
 
+        _liveButton.x = _lastW;
         _liveButton.addEventListener(MouseEvent.CLICK, seekToLive);
 
         _controlbar.addEventListener(ComponentEvent.JWPLAYER_COMPONENT_HIDE, function(e:Event){ _liveButton.visible = false;});
@@ -393,6 +401,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         (_timeSlider as Slider).progressColor(0x1FAAF0);
 
         seekToLive();
+
     }
 
 
@@ -404,6 +413,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
         _wasCalledSeekLive = true;
         _inLivePosition = true;
+        onTimeUpdate();
     }
 
     protected function addTimeTooltip():void{
@@ -501,9 +511,15 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
 
     public function resize(w:Number,h:Number):void{
+
+        _lastW = w;
+        _lastH = h;
+
         _controlbar && _controlbar.resize(w,h);
 
         _tooltip.x = _logoButton.x - 45;
+
+        _liveButton && (_liveButton.x = w);
     }
 
     /**

@@ -143,7 +143,7 @@ package org.flowplayer.view {
 			_providers[model.name] = model;
 		}
 		
-		internal function registerGenericPlugin(model:PluginModel):void {
+		public function registerGenericPlugin(model:PluginModel):void {
 			log.info("registering generic plugin " + model.name);
 			_genericPlugins[model.name] = model;
 		}
