@@ -265,7 +265,7 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		private function stateHandler(evt:PlayerEvent=null):void {
 
-   //         Logger.log(_player.state,'JW_STATE');
+            //Logger.log(_player.state,'JW_STATE');
 
 			switch(_player.state) {
 				case PlayerState.BUFFERING:

@@ -43,8 +43,11 @@ import flash.net.URLRequest;
 import flash.net.navigateToURL;
 import flash.system.Capabilities;
 import flash.utils.Timer;
+import flash.utils.setTimeout;
 
 import flashx.textLayout.edit.SelectionManager;
+
+import mx.utils.ObjectUtil;
 
 import org.flowplayer.httpstreaming.HttpStreamingProvider;
 import org.flowplayer.model.Clip;
@@ -107,6 +110,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
     private var _lastH:Number = 0;
 
 
+    private var _isOva:Boolean = false;
+
     public function JWWrapper(player:Flowplayer, config:Object = null) {
 
 
@@ -150,7 +155,12 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
 
 
-        _player.playlist.onBeforeBegin(function(e:ClipEvent){  Logger.log('begin'); currentClip = _player.currentClip; dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED,playlist)); _currentClip.onAll(onClipEvent)});
+        _player.playlist.onStart(function(e:ClipEvent){
+            Logger.log('start');
+            currentClip = _player.currentClip;
+            dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED,playlist));
+            _currentClip.onAll(onClipEvent)
+        },clipFilter);
 
         _player.onVolume(function(e:PlayerEvent):void{
             _config.volume = e.info as Number;
@@ -166,6 +176,13 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         _timeUpdateTimer.addEventListener(TimerEvent.TIMER, onTimeUpdate);
 
 
+    }
+
+    private function clipFilter(clip:Clip):Boolean{
+
+        _isOva =  Boolean(clip.customProperties["ovaAd"]);
+
+        return true;
     }
 
     protected function onMuteEvent(e:PlayerEvent):void{
@@ -251,8 +268,9 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
                 break;
             case ClipEventType.FINISH:
                 stopTimer();
-                _player.stop();
-                dispatchEvent(new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,state,null));
+               // _player.stop();
+                Logger.log('Finish');
+                setTimeout(dispatchEvent,2000,new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,PlayerState.IDLE,null));
                 break;
             case ClipEventType.BEGIN:
                 startTimer();
@@ -308,6 +326,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
     }
 
     private function seekHandler(e:ViewEvent):void {
+
+        if(_isOva) return;
 
         Logger.log(e.data,'seek');
         _player.seekRelative(e.data);
@@ -544,6 +564,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
      * The current player state
      */
     public function get state():String{
+
+        Logger.log(_player.state.code,'player state');
 
         if(_player.state == State.PAUSED) return PlayerState.PAUSED;
 
