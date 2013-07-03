@@ -1,3 +1,2 @@
 
-
-# Flash Media player for RussiaSport (based on FlowPlayer).
+Flash Media player for RussiaSport (based on FlowPlayer).
