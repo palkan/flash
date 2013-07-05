@@ -1,154 +1,193 @@
-
-<html><head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<!-- A minimal Flowplayer setup to get you started -->
-  
-
-	<!-- 
-		include flowplayer JavaScript file that does  
-		Flash embedding and provides the Flowplayer API.
-	-->
-	<script type="text/javascript" src="flowplayer-3.2.12.min.js"></script>
-	<!--script type="text/javascript" src="flashembed.js"></script>
-	<script type="text/javascript" src="swfobject.js"></script-->
-	
-	<script src="jquery.min.js"></script>
-	<script src="flowplayer.js"></script>
-	
-	<script type="text/javascript" src="script.js"></script>
-	<!--<link rel="stylesheet" type="text/css" href="../dist/skin/minimalist.css" />-->
-	<link rel="stylesheet" type="text/css" href="rs.css" />
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <!-- A minimal Flowplayer setup to get you started -->
 
 
-	<style>
-	.flowplayer {
-		width: 560px;
-	}
-	</style>
-	<!-- some minimal styling, can be removed -->
-	<link rel="stylesheet" type="text/css" href="style.css">
-	
-	<!-- page title -->
-	<title>Flowplayer setup</title>
+    <!--
+        include flowplayer JavaScript file that does
+        Flash embedding and provides the Flowplayer API.
+    -->
+    <script type="text/javascript" src="http://releases.flowplayer.org/js/flowplayer-3.2.12.min.js"></script>
+    <!--script type="text/javascript" src="flashembed.js"></script>
+    <script type="text/javascript" src="swfobject.js"></script-->
 
-</head><body>
 
-	<div id="page">
-		
-		<h1>Flash</h1>
-		<br/>
-		<!-- this A tag is where your Flowplayer will be placed. it can be anywhere
-		http://wms-mb.sportbox.ru:1935/live/mp4:dvrtest_1/manifest.f4m?DV -->
-<a style="display:block;width:560px;height:315px;" id="player"> 
-		</a> 
-	
-		<!-- this will install flowplayer inside previous A- tag. -->
-		<script>
-			flowplayer("player", "flowplayer-3.3.1.swf",
-			{
-			    plugins: {
-              	controlbar:{
-              		margin:-10	
-              	},
-                controls:null,
-                rs_controls:{
-              		url:"flowplayer.rs.controls-0.2.swf",
-              		width:'100%',
-              		height:27,
-              		left:0,
-              		margin:0,
-              		bottom:0
-                 },
-              	f4m:{url:"flowplayer.f4m-3.2.9.swf"},
-                httpstreaming: { url: "flowplayer.httpstreaming-3.2.10.swf" },
-                "rs-header": {
-                	url:"flowplayer.rs.header-0.3.swf",
-                	author:"Author",
-                    author_link:"http://russiasport.ru/user/1178/1289/",
-                	title:"Title",
-                    title_link:"http://russiasport.ru/",
-                    related:"http://russiasport.ru/user/1178/1289/user-video.xml",
-                    share:"ya.ru",
-                    embed:"<embed>Code is here!</embed>",
-                	top: 0, 
-                	left: 0, 
-                	width:'100%', 
-                	height:'100%'
-                },
-                   ova: {
-                        "url": "http://videoadmin.webta.ru/flowplayer/ova.swf",
-                        "autoPlay": true,
+    <script type="text/javascript" src="script.js"></script>
 
-                        "player": {
-                            "setUrlResolversOnAdClips": false
-                        },
-                        "ads": {
 
-                            "pauseOnClickThrough": true,
-                            "setDurationFromMetaData" : true,
-                            "deriveShowDurationFromMetaData" : true,
+    <style>
+        .flowplayer {
+            width: 560px;
+        }
+    </style>
+    <!-- some minimal styling, can be removed -->
+    <link rel="stylesheet" type="text/css" href="style.css">
 
-                            "servers": [],
-                            "schedule":[
-                                {
-                                    "position": "pre-roll",
-                                    "server": {
-                                        "type": "direct",
-                                        "tag": "http://ads.adfox.ru/214772/getCode?pp=g,ps=blkg,p2=etvk,pfc=a,pfb=a,plp=a,pli=a,pop=a"
-                                    }
-                                },  {
-                                    "position": "post-roll",
-                                    "server": {
-                                        "type": "direct",
-                                        "tag": "http://ads.adfox.ru/214772/getCode?pp=g,ps=blkg,p2=etvl,pfc=a,pfb=a,plp=a,pli=a,pop=a"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-              },
-              clip:{
-                    //
-                url: "mp4:201307310000testreklamy_1/manifest.f4m?t=1372850481&h=HzQezxxuNM0GhadIpERp6Q==&dvr",
-                urlResolvers: ['f4m'],
-                provider: 'httpstreaming',
-                baseUrl:"http://188.127.244.9:1935/dvredge",
-                autoPlay:true
-              },  /*
-                "playlist": [
+    <!-- page title -->
+    <title>Flowplayer setup</title>
+
+</head>
+<body>
+
+<div id="page">
+
+    <h1>Flash</h1>
+    <br/>
+    <!-- this A tag is where your Flowplayer will be placed. it can be anywhere
+    http://wms-mb.sportbox.ru:1935/live/mp4:dvrtest_1/manifest.f4m?DV -->
+    <a style="display:block;width:560px;height:315px;" id="player">
+    </a>
+
+    <div style="display:none;margin-top:12px">
+        <b>Choose Video Bitrate:</b> <br/> <br/>
+
+        <!--
+          The wrapper for the select options.
+          By default the plugin will use the contained element as a template.
+          It will clone it for each bitrate configured in the clip.
+          {bitrate} is replaced by a bitrate value and {label} is replaced
+          by the corresponding label.
+        -->
+        <div id="options">
+            <a href="#{bitrate}">{label}&nbsp;&nbsp;</a>
+        </div>
+    </div>
+
+    <!-- this will install flowplayer inside previous A- tag. -->
+    <script>
+        flowplayer("player", "flowplayer-3.3.1.swf",
                 {
-                    url:"http://teachbase.ru/bitrix/templates/landing/images/head-image-course.png"
-                },
-                    {
-                      //  url: "test4/manifest.f4m?DVR",
-                       // url: "http://188.127.244.9:1935/dvredge/mp4:201307310000testreklamy_1/manifest.f4m?t=1372850481&h=HzQezxxuNM0GhadIpERp6Q==&dvr",
-                      //  urlResolvers: ['f4m'],
-                     //   provider: 'httpstreaming',
-                     //   autoPlay:false
-                       url:"http://streaming.openvideoads.org/shows/the-black-hole.mp4"
+                    plugins: {
+                        controlbar: {
+                            margin: -10
+                        },
+                        controls: null,
+                        rs_controls: {
+                            url: "flowplayer.rs.controls-0.3.swf",
+                            hd_labels:{
+                              hd:"720p",
+                              sd:"360p"
+                            },
+                            fontsize: 11,
+                            fontcolor: "0xffffff",
+                            position: "over",
+                            rs_url: "http://russiasport.ru/",
+                            width: '100%',
+                            height: 27,
+                            left: 0,
+                            margin: 0,
+                            bottom: 0
+                        },
+                        f4m: {url: "flowplayer.f4m-3.2.9.swf"},
+                        httpstreaming: { url: "flowplayer.httpstreaming-3.2.10.swf" },
+                        "rs-header": {
+                            url: "flowplayer.rs.header-0.3.swf",
+                            author: "Author",
+                            author_link: "http://russiasport.ru/user/1178/1289/",
+                            title: "Title",
+                            title_link: "http://russiasport.ru/",
+                            related: "http://russiasport.ru/user/1178/1289/user-video.xml",
+                            share: "ya.ru",
+                            embed: "<embed>Code is here!</embed>",
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%'
+                        },
+                        /*  rtmp: {
+                         url: "flowplayer.rtmp.swf",
+                         netConnectionUrl: 'rtmp://russiasport-vod.cdn.ngenix.net/un4Aewo7ut'
+                         }*/
+                        ova: {
+                            "url": "http://videoadmin.webta.ru/flowplayer/ova.swf",
+                            "autoPlay": true,
+
+                            "player": {
+                                "setUrlResolversOnAdClips": false
+                            },
+                            "ads": {
+                               //  "playOnce":true,
+                                "pauseOnClickThrough": true,
+                                "setDurationFromMetaData": true,
+                                "deriveShowDurationFromMetaData": true,
+
+                                "servers": [],
+                                "schedule": [
+                                    {
+                                        "position": "pre-roll",
+                                        "server": {
+                                            "type": "direct",
+                                            "tag": "http://ads.adfox.ru/214772/getCode?pp=g,ps=blkg,p2=etvk,pfc=a,pfb=a,plp=a,pli=a,pop=a"
+                                        },
+                                        applyToParts: [0]
+                                    },
+                                    {
+                                        "position": "post-roll",
+                                        "server": {
+                                            "type": "direct",
+                                            "tag": "http://ads.adfox.ru/214772/getCode?pp=g,ps=blkg,p2=etvl,pfc=a,pfb=a,plp=a,pli=a,pop=a"
+                                        },
+                                        applyToParts: [1]
+                                    }
+                                ]
+                            }
+
+
+
+                        }
+                    },
+
+                    clip: {
+                        //url: "mp4:201307050950badmintonkomandnyesorevnovaniya_1/manifest.f4m?dvr",
+                        urlResolvers: ['f4m'],
+                        provider: 'httpstreaming',
+                        baseUrl: "http://russiasport-live.cdn.ngenix.net/Choh6kahbodvr",
+                        //  url:"smena360.mp4",
+                        //  baseUrl:"http://dev2.teachbase.ru/app",
+                        autoPlay: true
+                        //  provider:"rtmp",
+                        //url:"mp4:russiasport/wowzacontent/0705_badm_malkov_1_0-512Kbps_0.mp4"
+
+                    },
+                    playlist:[
+                        {
+                            url: "mp4:201307050950badmintonkomandnyesorevnovaniya_1/manifest.f4m?dvr",
+                            customProperties:{
+                                hd: false
+                            }
+                        },
+                        {
+                            url: "mp4:201307050950badmintonkomandnyesorevnovaniya_2/manifest.f4m?dvr",
+                            customProperties:{
+                                hd: true
+                            }
+                        }
+
+                        ],
+                    debug: 'none',
+                    log: {
+                        level: "debug",
+                        filter: "org.flowplayer.rs.*"
                     }
-                ], */
-              debug:true,
-              log: {
-              	level:"debug",
-              	filter:"org.flowplayer.rs.*"
-              }
-            }
-);
-		</script>
-	
-		<button type="button" onclick="seekTo()">seek</button>
-		<button type="button" onclick="play()">play</button>
-		<button type="button" onclick="pause()">pause</button>
-		<!--h1>HTML 5</h1>
-		<br/>
-		<div class="flowplayer play-button no-embed no-related" data-debug="true" data-author-name="Константин Космодемьянский" data-video-title="Павлюченко забил свой последний болт">
-    <video>
-        <source type="video/mp4" src="/16122010002.mp4">
-    </video>
+                }
+        )
+        ;
+    </script>
+
+    <button type="button" onclick="seekTo()">seek</button>
+    <button type="button" onclick="play()">play</button>
+    <button type="button" onclick="pause()">pause</button>
+    <!--h1>HTML 5</h1>
+    <br/>
+    <div class="flowplayer play-button no-embed no-related" data-debug="true" data-author-name="Константин Космодемьянский" data-video-title="Павлюченко забил свой последний болт">
+<video>
+    <source type="video/mp4" src="/16122010002.mp4">
+</video>
 </div-->
-			
-	</div>
-	
-	
-</body></html>
+
+</div>
+
+
+</body>
+</html>

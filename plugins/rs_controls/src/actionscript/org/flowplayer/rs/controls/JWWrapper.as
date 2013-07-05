@@ -24,6 +24,8 @@ import com.longtailvideo.jwplayer.plugins.PluginConfig;
 import com.longtailvideo.jwplayer.utils.Logger;
 import com.longtailvideo.jwplayer.view.IPlayerComponents;
 import com.longtailvideo.jwplayer.view.components.ControlbarComponent;
+import com.longtailvideo.jwplayer.view.components.DropDownList;
+import com.longtailvideo.jwplayer.view.components.DropDownListItem;
 import com.longtailvideo.jwplayer.view.components.RSButton;
 import com.longtailvideo.jwplayer.view.components.RSButtonIcon;
 import com.longtailvideo.jwplayer.view.components.Slider;
@@ -46,6 +48,8 @@ import flash.utils.Timer;
 import flash.utils.setTimeout;
 
 import flashx.textLayout.edit.SelectionManager;
+
+import mx.collections.CursorBookmark;
 
 import mx.utils.ObjectUtil;
 
@@ -112,6 +116,21 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     private var _isOva:Boolean = false;
 
+
+    private var _hasHD:Boolean = false;
+
+    private var _isHD:Boolean = false;
+
+    private var _hdButton:DisplayObject;
+
+    private var _hdIcon:DropDownListItem;
+
+    private var _hd_labels:Object;
+
+    private var _hdList:DropDownList;
+
+    private var _switchToPisition:Number = 0;
+
     public function JWWrapper(player:Flowplayer, config:Object = null) {
 
 
@@ -158,8 +177,11 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         _player.playlist.onStart(function(e:ClipEvent){
             Logger.log('start');
             currentClip = _player.currentClip;
+
             dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED,playlist));
-            _currentClip.onAll(onClipEvent)
+            _currentClip.onAll(onClipEvent);
+
+
         },clipFilter);
 
         _player.onVolume(function(e:PlayerEvent):void{
@@ -181,6 +203,14 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
     private function clipFilter(clip:Clip):Boolean{
 
         _isOva =  Boolean(clip.customProperties["ovaAd"]);
+
+        if(clip.customProperties['dvr']) setupDVRInfo();
+        else removeLiveButton();
+
+        if(clip.customProperties.hasOwnProperty('hd')){
+            _isHD = clip.customProperties['hd'];
+            enableHD();
+        }else disableHD();
 
         return true;
     }
@@ -208,27 +238,7 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
             b_event.position = _player.status.time;
 
 
-        if(_liveButton){
 
-            var position = 0;
-
-            if(!_inLivePosition){
-
-                const _livePos:Number = livePosition;
-                //Logger.log(livePosition,'live');
-                // Logger.log(b_event.duration,'duratio
-
-                if(_livePos && _timeSlider){
-                    position = _timeSlider.width * (_livePos / b_event.duration);
-                }
-
-            }else{
-
-                position = _timeSlider.width * (b_event.position / b_event.duration);
-            }
-
-            //position && (_liveButton.x = (position > _liveButton.width) ? position : _liveButton.width);
-        }
 
         dispatchEvent(b_event);
     }
@@ -270,7 +280,10 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
                 stopTimer();
                // _player.stop();
                 Logger.log('Finish');
-                setTimeout(dispatchEvent,2000,new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,PlayerState.IDLE,null));
+
+                if(!_isOva && _hasHD && !_isHD) _player.next();
+                else
+                    setTimeout(dispatchEvent,2000,new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE,PlayerState.IDLE,null));
                 break;
             case ClipEventType.BEGIN:
                 startTimer();
@@ -278,6 +291,15 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
                 break;
             case ClipEventType.BUFFER_STOP:
                 _updateBuffer = false;
+                break;
+            case ClipEventType.SWITCH_COMPLETE:
+                if(_inLivePosition) seekToLive();
+                else _switchToPisition && _player.seek(_switchToPisition);
+
+                _hdList && _hdList.setActive(_isHD ? _hd_labels['hd'] : _hd_labels['sd']);
+
+                _hdIcon && (_hdIcon.label = _isHD ? _hd_labels['hd'] : _hd_labels['sd']);
+
                 break;
             case ClipEventType.SEEK:
                 if(_liveButton){
@@ -346,10 +368,111 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
     protected function addCustomButtons():void{
         addRussiaSportButton();
-       // addLiveButton();
         addTimeTooltip();
+        addHD();
         // plus one button
     }
+
+
+    protected function enableHD(){
+
+        _controlbar.addButton(_hdIcon, "hd", null);
+
+        _hdButton = _controlbar.getButton('hd');
+
+        _hdButton.addEventListener(MouseEvent.MOUSE_OVER,onMouseHandler);
+        _hdButton.addEventListener(MouseEvent.MOUSE_OUT,onMouseHandler);
+
+        _hasHD = true;
+
+    }
+
+    protected function disableHD(){
+        if(_hdButton){
+            _hdButton.removeEventListener(MouseEvent.MOUSE_OVER,onMouseHandler);
+            _hdButton.removeEventListener(MouseEvent.MOUSE_OUT,onMouseHandler);
+            _controlbar.removeButton('hd');
+        }
+        _hasHD = false;
+
+    }
+
+
+    protected function hdSwitch(e:Event = null){
+
+        if(!_hasHD) return;
+
+        if(_isHD){
+
+           if(_player.playlist.hasPrevious()){
+
+              _switchToPisition =  _player.status.time;
+              Logger.log("start prev: "+_player.status.time,'switch');
+              _player.previous();
+           }else
+            Logger.log('no not hd item!');
+
+        }else{
+
+            if(_player.playlist.hasNext()){
+                _switchToPisition = _player.status.time;
+                Logger.log("start next: "+_player.status.time,'switch');
+                _player.next();
+            }else
+                Logger.log('no hd item!');
+
+        }
+
+    }
+
+
+    protected function addHD():void{
+
+        _hd_labels = _config.pluginConfig('controlbar')['hd_labels'] || { hd:'HD', sd: "SD"};
+
+        _hdIcon = new DropDownListItem(45,27,{label:_hd_labels['sd'], target: 'sd'});
+
+         _hdList = new DropDownList();
+        _hdList.init();
+        _hdList.addItem({
+            label: _hd_labels['sd'],
+            target: 'sd'
+        });
+        _hdList.addItem({
+            label: _hd_labels['hd'],
+            target: 'hd'
+        });
+
+
+        _hdList.visible = false;
+        _hdList.addEventListener(ViewEvent.JWPLAYER_VIEW_CLICK,onListClick);
+        _hdList.addEventListener(MouseEvent.MOUSE_OVER,onMouseHandler);
+        _hdList.addEventListener(MouseEvent.MOUSE_OUT,onMouseHandler);
+        _controlbar.addChildAt(_hdList as DisplayObject,_controlbar.numChildren-1);
+        _hdList.setActive(_hd_labels['sd']);
+        _hdList.y = 0;
+
+    }
+
+    protected function onMouseHandler(event:MouseEvent):void
+    {
+        const flag:Boolean = (event.type===MouseEvent.MOUSE_OVER);
+
+        flag && _hdList && _hdButton && (_hdList.x = _hdButton.x);
+
+        _hdList.visible = flag;
+
+        flag && (_controlbar.setChildIndex(_hdList as DisplayObject,_controlbar.numChildren-1));
+    }
+    protected function onListClick(event:ViewEvent):void
+    {
+
+        ((event.data.target == 'hd') != _isHD) && hdSwitch();
+
+    }
+
+
+
 
 
     protected function addRussiaSportButton():void{
@@ -422,6 +545,20 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
 
         seekToLive();
 
+    }
+
+
+    protected function removeLiveButton():void{
+
+        if(!_liveButton) return;
+
+        _controlbar.removeChild(_liveButton);
+
+        _inLivePosition = false;
+
+        (_timeSlider as Slider).progressColor(0xCD0000);
+
+        _liveButton = null;
     }
 
 
@@ -540,6 +677,8 @@ public class JWWrapper extends Sprite implements IPlayer, IGlobalEventDispatcher
         _tooltip.x = _logoButton.x - 45;
 
         _liveButton && (_liveButton.x = w);
+
+
     }
 
     /**

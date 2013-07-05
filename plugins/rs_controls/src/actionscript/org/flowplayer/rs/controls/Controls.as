@@ -54,7 +54,7 @@ import org.flowplayer.view.StyleableSprite;
 			// log.info("received player API! autohide == " + _config.autoHide.state);
 			_player = player;
 
-            _jwplayer = new JWWrapper(_player);
+            _jwplayer = new JWWrapper(_player,_config);
 
             log.debug("created",width,height);
 

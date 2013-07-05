@@ -28,7 +28,7 @@ package com.longtailvideo.jwplayer.view.components
 		private var text:TextField;
 		private var icon:DisplayObject;
 		
-		private var _xoffset:int=8;
+		private var _xoffset:int=0;
 		//private var rtext;
 		
 		private var ct:ColorTransform;
@@ -63,18 +63,19 @@ package com.longtailvideo.jwplayer.view.components
 			
 			
 			var _tf:TextFormat = new TextFormat();
-			_tf.align = "left";
+			_tf.align = "center";
 			_tf.color = "0x9a9a9a";
 			_tf.font = "_sans";
 			_tf.size = 11;
-			
+
 			
 			tf_active = new TextFormat();
 			tf_active.color = "0xf80000";
+
 			
 			tf = new TextFormat();
 			tf.color = "0x9a9a9a";
-			
+
 			
 			text = new TextField();
 			text.defaultTextFormat = _tf;
